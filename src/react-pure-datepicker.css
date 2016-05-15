@@ -1,0 +1,90 @@
+.react-pure-modal.react-pure-calendar-modal {
+  width: 500px;
+}
+
+.react-pure-calendar > * {
+  padding-left: 30px;
+}
+.react-pure-calendar > *:first-child {
+  padding-left: 0;
+}
+
+.react-pure-calendar .calendarWrap {
+  padding-top: 5px;
+  width: 210px;
+}
+
+.react-pure-calendar .weekDayNameShort {
+  width: 25px;
+  display: inline-block;
+  text-align: center;
+  margin-left: 5px;
+  font-size: 10px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.react-pure-calendar .date-cell {
+  display: inline-block;
+  text-align: center;
+  width: 25px;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  padding: 3px 3px 2px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.react-pure-calendar .monthName {
+  text-align: center;
+  margin-bottom: 4px;
+  padding: 4px 3px 2px;
+  cursor: pointer;
+}
+
+.react-pure-calendar .yearName {
+  text-align: center;
+  padding: 4px 3px 2px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.react-pure-calendar .yearName:hover,
+.react-pure-calendar .monthName:hover,
+.react-pure-calendar .date-cell:hover {
+  background-color: #dedede;    
+}
+
+.react-pure-calendar .yearName.pre-selected,
+.react-pure-calendar .monthName.pre-selected,
+.react-pure-calendar .date-cell.pre-selected {
+  background-color: #dedede;
+}
+
+.react-pure-calendar .weekDayNameShort.weekend,
+.react-pure-calendar .date-cell.weekend {
+  color: #ff0000;
+}
+
+.react-pure-calendar .date-cell.out-month {
+  color: #ccc;
+}
+
+.react-pure-calendar .yearName.out-min-max,
+.react-pure-calendar .monthName.out-min-max,
+.react-pure-calendar .date-cell.out-min-max {
+  color: #dedede;
+  cursor: not-allowed;
+}
+.react-pure-calendar .yearName.out-min-max:hover,
+.react-pure-calendar .monthName.out-min-max:hover,
+.react-pure-calendar .date-cell.out-min-max:hover {
+  background-color: white;
+}
+
+.react-pure-calendar .yearName.selected,
+.react-pure-calendar .monthName.selected,
+.react-pure-calendar .date-cell.selected {
+  color: white;
+  background-color: #0000ff;
+}

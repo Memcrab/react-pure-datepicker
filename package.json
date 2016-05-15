@@ -37,13 +37,18 @@
     "babel-preset-stage-1": "6.5.0",
     "conventional-changelog": "1.1.0",
     "eslint": "2.9.0",
+    "instadate": "^0.3.0",
     "react": "15.0.2",
     "react-dom": "15.0.2",
+    "react-pure-modal": "^1.0.1",
     "rimraf": "2.5.2",
     "webpack": "1.13.0",
     "yargs": "4.6.0"
   },
   "peerDependencies": {
     "react": "^15.0.0"
+  },
+  "dependencies": {
+    "react-pure-time": "^0.1.0"
   }
 }
