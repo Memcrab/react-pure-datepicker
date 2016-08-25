@@ -125,7 +125,7 @@ class PureDatepicker extends Component {
 
     if (!this.isMinMaxOut(this.renderedDate, this.props.min, this.props.max)) {
       if (this.props.onChange) {
-        this.props.onChange(this.renderedDate);
+        this.props.onChange(this.renderedDate, this.props.name);
       }
     } else if (!this.isMinMaxOut(this.renderedDate, this.props.min, this.props.max, accuracy)) {
       if (this.props.min && instadate.isBefore(this.renderedDate, this.props.min)) {
@@ -137,14 +137,14 @@ class PureDatepicker extends Component {
       }
 
       if (this.props.onChange) {
-        this.props.onChange(this.renderedDate);
+        this.props.onChange(this.renderedDate, this.props.name);
       }
     }
   }
 
   clear() {
     this.renderedDate = '';
-    this.props.onChange('');
+    this.props.onChange('', this.props.name);
   }
 
   handleInput() {
@@ -342,6 +342,7 @@ PureDatepicker.propTypes = {
   monthsNames: PropTypes.array,
   years: PropTypes.array,
   className: PropTypes.string,
+  name: PropTypes.string,
   placeholder: PropTypes.string,
   inputClassName: PropTypes.string,
   min: PropTypes.oneOfType([
