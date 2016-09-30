@@ -1,18 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import ReactPureModal from 'react-pure-modal';
 import instadate from 'instadate';
-import { format } from 'react-pure-time';
+import { format as pureDateFormat } from 'react-pure-time';
 
 class PureDatepicker extends Component {
-  constructor(props) {
-    super(props);
-    this.getMonthClasses = this.getMonthClasses.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-    this.openDatepickerModal = this.openDatepickerModal.bind(this);
-    this.clear = this.clear.bind(this);
-  }
-
-  getYearsPeriod(currentYear, years) {
+  static getYearsPeriod(currentYear, years) {
     const period = [];
     let fromYear = currentYear + years[0];
     const toYear = currentYear + years[1];
@@ -22,6 +14,29 @@ class PureDatepicker extends Component {
       fromYear++;
     }
     return period;
+  }
+
+  static normalizeDate(date, accuracy = '', direction = '') {
+    switch (`${accuracy}-${direction}`) {
+      case 'month-up':
+        return instadate.lastDateInMonth(date);
+      case 'month-down':
+        return instadate.firstDateInMonth(date);
+      case 'year-up':
+        return new Date(date.getFullYear, 11, 31);
+      case 'year-down':
+        return new Date(date.getFullYear, 0, 1);
+      default:
+        return date;
+    }
+  }
+
+  constructor(props) {
+    super(props);
+    this.getMonthClasses = this.getMonthClasses.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.openDatepickerModal = this.openDatepickerModal.bind(this);
+    this.clear = this.clear.bind(this);
   }
 
   getDateClasses(date, value, renderedDate, min, max) {
@@ -44,15 +59,15 @@ class PureDatepicker extends Component {
     const classes = ['monthName'];
     if (value) {
       const dateByMonth = new Date(
-        value.getUTCFullYear(),
+        value.getFullYear(),
         this.props.monthsNames.indexOf(monthName),
-        value.getUTCDate()
+        1
       );
       if (instadate.isSameMonth(dateByMonth, value)) classes.push('selected');
       if (this.isMinMaxOut(dateByMonth, min, max, 'month')) classes.push('out-min-max');
     } else {
       const dateByMonth = new Date(
-        renderedDate.getUTCFullYear(),
+        renderedDate.getFullYear(),
         this.props.monthsNames.indexOf(monthName)
       );
       if (instadate.isSameMonth(dateByMonth, renderedDate)) classes.push('pre-selected');
@@ -63,7 +78,7 @@ class PureDatepicker extends Component {
   getYearClasses(year, value, renderedDate, min, max) {
     const classes = ['yearName'];
     if (value) {
-      const dateByYear = new Date(year, value.getUTCMonth(), value.getUTCDate());
+      const dateByYear = new Date(year, 0, 1);
       if (instadate.isSameYear(dateByYear, value)) classes.push('selected');
       if (this.isMinMaxOut(dateByYear, min, max, 'year')) classes.push('out-min-max');
     } else {
@@ -74,30 +89,15 @@ class PureDatepicker extends Component {
     return classes.join(' ');
   }
 
-  normalizeDate(date, accuracy = '', direction = '') {
-    switch (`${accuracy}-${direction}`) {
-      case 'month-up':
-        return instadate.lastDateInMonth(date);
-      case 'month-down':
-        return instadate.firstDateInMonth(date);
-      case 'year-up':
-        return new Date(date.getUTCFullYear, 11, 31);
-      case 'year-down':
-        return new Date(date.getUTCFullYear, 0, 1);
-      default:
-        return date;
-    }
-  }
-
   isMinMaxOut(date, min, max, accuracy) {
     if (!min && !max) {
       return false;
     }
-    if (min && instadate.isAfter(min, this.normalizeDate(date, accuracy, 'up'))) {
+    if (min && instadate.isAfter(min, this.constructor.normalizeDate(date, accuracy, 'up'))) {
       return true;
     }
 
-    if (max && instadate.isBefore(max, this.normalizeDate(date, accuracy, 'down'))) {
+    if (max && instadate.isBefore(max, this.constructor.normalizeDate(date, accuracy, 'down'))) {
       return true;
     }
 
@@ -110,22 +110,25 @@ class PureDatepicker extends Component {
 
     if (year) {
       accuracy = 'year';
-      this.renderedDate.setUTCFullYear(year);
+      this.renderedDate.setFullYear(year);
     }
 
     if (month) {
-      this.renderedDate.setUTCMonth(month);
+      this.renderedDate.setMonth(month);
       accuracy = 'month';
     }
 
     if (day) {
       accuracy = 'date';
-      this.renderedDate.setUTCDate(day);
+      this.renderedDate.setDate(day);
     }
 
     if (!this.isMinMaxOut(this.renderedDate, this.props.min, this.props.max)) {
       if (this.props.onChange) {
-        this.props.onChange(this.renderedDate, this.props.name);
+        this.props.onChange(pureDateFormat(this.renderedDate, this.props.returnFormat), this.props.name);
+        if (accuracy === 'date') {
+          this.closeDatepickerModal();
+        }
       }
     } else if (!this.isMinMaxOut(this.renderedDate, this.props.min, this.props.max, accuracy)) {
       if (this.props.min && instadate.isBefore(this.renderedDate, this.props.min)) {
@@ -137,7 +140,10 @@ class PureDatepicker extends Component {
       }
 
       if (this.props.onChange) {
-        this.props.onChange(this.renderedDate, this.props.name);
+        this.props.onChange(pureDateFormat(this.renderedDate, this.props.returnFormat), this.props.name);
+        if (accuracy === 'date') {
+          this.closeDatepickerModal();
+        }
       }
     }
   }
@@ -151,8 +157,13 @@ class PureDatepicker extends Component {
 
   }
 
-  openDatepickerModal() {
+  openDatepickerModal(e) {
+    e.currentTarget.blur();
     this.refs.datepicker.open();
+  }
+
+  closeDatepickerModal() {
+    this.refs.datepicker.close();
   }
 
   render() {
@@ -183,15 +194,16 @@ class PureDatepicker extends Component {
         this.props.max : new Date(this.props.max);
     }
 
-    const renderedDate = instadate.noon(value || today);
+    const renderedDate = new Date((value || today).getTime());
+    renderedDate.setHours(0, 0, 0, 0);
     this.renderedDate = renderedDate;
 
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
     const dates = instadate.dates(
-      instadate.addDays(firsDatetInPeriod, -firsDatetInPeriod.getUTCDay()),
-      instadate.addDays(lastDateInPeriod, 6 - lastDateInPeriod.getUTCDay()));
-    const centralYearInPeriod = renderedDate.getUTCFullYear();
+      instadate.addDays(firsDatetInPeriod, -firsDatetInPeriod.getDay()),
+      instadate.addDays(lastDateInPeriod, 6 - lastDateInPeriod.getDay()));
+    const centralYearInPeriod = renderedDate.getFullYear();
 
     return (
       <div className={className}>
@@ -221,20 +233,20 @@ class PureDatepicker extends Component {
                 }
               </div>
               {
-                dates.map((date) => {
-                  const UTCDate = date.getUTCDate();
-                  const UTCMonth = date.getUTCMonth();
-                  const UTCYear = date.getUTCFullYear();
+                dates.map((dateObject) => {
+                  const date = dateObject.getDate();
+                  const month = dateObject.getMonth();
+                  const year = dateObject.getFullYear();
 
                   return (
                     <div
-                      key={`${UTCMonth}-${UTCDate}`}
-                      className={this.getDateClasses(date, value, renderedDate, min, max)}
-                      data-day={UTCDate}
-                      data-month={UTCMonth}
-                      data-year={UTCYear}
+                      key={`${month}-${date}`}
+                      className={this.getDateClasses(dateObject, value, renderedDate, min, max)}
+                      data-day={date}
+                      data-month={month}
+                      data-year={year}
                       onClick={this.handleClick}
-                    >{UTCDate}</div>
+                    >{date}</div>
                   );
                 })
               }
@@ -243,9 +255,9 @@ class PureDatepicker extends Component {
               <button
                 onClick={this.handleClick}
                 type="button"
-                data-day={today.getUTCDate()}
-                data-month={today.getUTCMonth()}
-                data-year={today.getUTCFullYear()}
+                data-day={today.getDate()}
+                data-month={today.getMonth()}
+                data-year={today.getFullYear()}
                 className="btn btn-block btn-sm btn-default"
               >Today</button>
               <button
@@ -268,7 +280,7 @@ class PureDatepicker extends Component {
             </div>
             <div className="top">
               {
-                this.getYearsPeriod(centralYearInPeriod, years).map(year => (
+                this.constructor.getYearsPeriod(centralYearInPeriod, years).map(year => (
                   <div
                     key={year}
                     data-year={year}
@@ -287,6 +299,7 @@ class PureDatepicker extends Component {
 
 PureDatepicker.defaultProps = {
   today: new Date(),
+  returnFormat: 'Y-m-d H:i:s',
   format: 'd.m.Y',
   monthsNames: [
     'January',
@@ -338,6 +351,7 @@ PureDatepicker.propTypes = {
   onChange: PropTypes.func,
   today: PropTypes.instanceOf(Date),
   format: PropTypes.string.isRequired,
+  returnFormat: PropTypes.string,
   weekDaysNamesShort: PropTypes.array,
   monthsNames: PropTypes.array,
   years: PropTypes.array,

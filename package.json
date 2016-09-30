@@ -1,6 +1,6 @@
 {
   "name": "react-pure-datepicker",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "React datepicker",
   "main": "dist/react-pure-datepicker.min.js",
   "jnext:main": "dist/react-pure-datepicker.min.js",
@@ -36,11 +36,15 @@
     "babel-preset-react": "6.3.13",
     "babel-preset-stage-1": "6.5.0",
     "conventional-changelog": "1.1.0",
-    "eslint": "2.9.0",
-    "instadate": "^0.3.0",
+    "eslint": "3.6.1",
+    "eslint-config-airbnb": "12.0.0",
+    "eslint-plugin-import": "2.0.0",
+    "eslint-plugin-jsx-a11y": "2.2.2",
+    "eslint-plugin-react": "6.3.0",
+    "instadate": "0.3.0",
     "react": "15.0.2",
     "react-dom": "15.0.2",
-    "react-pure-modal": "^1.0.1",
+    "react-pure-modal": "1.0.3",
     "rimraf": "2.5.2",
     "webpack": "1.13.0",
     "yargs": "4.6.0"
@@ -49,6 +53,8 @@
     "react": "^15.0.0"
   },
   "dependencies": {
+    "instadate": "^0.3.0",
+    "react-pure-modal": "^1.0.3",
     "react-pure-time": "^0.1.0"
   }
 }
