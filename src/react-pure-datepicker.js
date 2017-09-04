@@ -1,9 +1,10 @@
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ReactPureModal from 'react-pure-modal';
 import instadate from 'instadate';
 import { format as pureDateFormat } from 'react-pure-time';
 
-class PureDatepicker extends Component {
+class PureDatepicker extends React.Component {
   static getYearsPeriod(currentYear, years) {
     const period = [];
     let fromYear = currentYear + years[0];
