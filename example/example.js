@@ -5,17 +5,23 @@ import Datepicker from '../dist/react-pure-datepicker.min.js';
 class DatepickerContainer extends React.Component {
   constructor(props) {
     super(props);
-    this.openModal = this.openModal.bind(this);
-  }
-
-  openModal() {
-    this.modal.open();
+    this.state = {
+      value: '',
+    }
   }
 
   render() {
     return (
       <div>
-        <Datepicker />
+        <Datepicker
+          value={this.state.value}
+          onChange={(value) => {
+            console.log('value =>', value);
+            this.setState({ value });
+          }}
+          format="Y-m-d"
+          returnFormat="Y-m-d"
+        />
       </div>
     );
   }

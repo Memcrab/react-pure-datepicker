@@ -2,6 +2,12 @@
   width: 500px;
 }
 
+.react-pure-calendar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
 .react-pure-calendar > * {
   padding-left: 30px;
 }
@@ -9,28 +15,40 @@
   padding-left: 0;
 }
 
+.react-pure-calendar .weekdays-names {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
 .react-pure-calendar .calendarWrap {
   padding-top: 5px;
-  width: 210px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  align-self: flex-start;
 }
 
 .react-pure-calendar .weekDayNameShort {
-  width: 25px;
-  display: inline-block;
-  text-align: center;
-  margin-left: 5px;
   font-size: 10px;
   margin-bottom: 5px;
   font-weight: bold;
+  text-align: center;
+  width: 14%;
 }
 
 .react-pure-calendar .date-cell {
+  box-sizing: border-box;
   display: inline-block;
   text-align: center;
-  width: 25px;
-  margin-left: 5px;
+  width: 14%;
+  margin-left: 0.28%;
   margin-bottom: 5px;
-  padding: 3px 3px 2px;
+  padding: 12px 3px 10px;
   border-radius: 6px;
   cursor: pointer;
 }
