@@ -34,16 +34,20 @@ class PureDatepicker extends React.Component {
       case 'month-down':
         return instadate.firstDateInMonth(date);
       case 'year-up':
-        return new Date(date.getFullYear, 11, 31);
+        return new Date(date.getFullYear, 11, 31, 0, 0, 0, 0);
       case 'year-down':
-        return new Date(date.getFullYear, 0, 1);
+        return new Date(date.getFullYear, 0, 1, 0, 0, 0, 0);
       default:
         return date;
     }
   }
 
   static toDate(dateString) {
-    return instadate.parseISOString(dateString);
+    const date = instadate.parseISOString(dateString);
+    if (this.isDateValid(date)) {
+      return instadate.noon(date);
+    }
+    return undefined;
   }
 
   constructor(props) {
@@ -53,6 +57,7 @@ class PureDatepicker extends React.Component {
     this.getYearClasses = this.getYearClasses.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
+    this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
     this.state = {
       value: this.constructor.toDate(props.value),
@@ -81,108 +86,117 @@ class PureDatepicker extends React.Component {
     }
   }
 
-  getDateClasses(date, value, renderedDate, min, max) {
+  getDateClasses(date, value, renderedDate) {
     const classes = ['date-cell'];
     if (instadate.isWeekendDate(date)) classes.push('weekend');
     if (!instadate.isSameMonth(date, renderedDate)) classes.push('out-month');
 
-    if (this.constructor.isDateValid(value)) {
+    if (value) {
       if (instadate.isSameDay(date, value)) classes.push('selected');
     } else if (instadate.isSameDay(date, renderedDate)) {
       classes.push('pre-selected');
     }
 
-    if (this.isMinMaxOut(date, min, max)) classes.push('out-min-max');
+    if (!this.isInRange(date)) classes.push('out-min-max');
 
     return classes.join(' ');
   }
 
-  getMonthClasses(monthName, value, renderedDate, min, max) {
+  getMonthClasses(monthName, value, renderedDate) {
     const classes = ['monthName'];
-    if (this.constructor.isDateValid(value)) {
+    if (value) {
       const dateByMonth = new Date(
         value.getFullYear(),
         this.props.monthsNames.indexOf(monthName),
         1,
+        0,
+        0,
+        0,
+        0,
       );
       if (instadate.isSameMonth(dateByMonth, value)) classes.push('selected');
-      if (this.isMinMaxOut(dateByMonth, min, max, 'month')) classes.push('out-min-max');
+      if (!this.isInRange(dateByMonth, 'month')) classes.push('out-min-max');
     } else {
       const dateByMonth = new Date(
         renderedDate.getFullYear(),
         this.props.monthsNames.indexOf(monthName),
+        1,
+        0,
+        0,
+        0,
+        0,
       );
       if (instadate.isSameMonth(dateByMonth, renderedDate)) classes.push('pre-selected');
     }
     return classes.join(' ');
   }
 
-  getYearClasses(year, value, renderedDate, min, max) {
+  getYearClasses(year, value, renderedDate) {
     const classes = ['yearName'];
-    if (this.constructor.isDateValid(value)) {
-      const dateByYear = new Date(year, 0, 1);
+    if (value) {
+      const dateByYear = new Date(year, 0, 1, 0, 0, 0, 0);
       if (instadate.isSameYear(dateByYear, value)) classes.push('selected');
-      if (this.isMinMaxOut(dateByYear, min, max, 'year')) classes.push('out-min-max');
+      if (!this.isInRange(dateByYear, 'year')) classes.push('out-min-max');
     } else {
-      const dateByYear = new Date(year, 0);
+      const dateByYear = new Date(year, 0, 1, 0, 0, 0, 0);
       if (instadate.isSameYear(dateByYear, renderedDate)) classes.push('pre-selected');
     }
 
     return classes.join(' ');
   }
 
-  isMinMaxOut(date, min, max, accuracy) {
-    if (!min && !max) {
-      return false;
-    }
-    if (min && instadate.isAfter(min, this.constructor.normalizeDate(date, accuracy, 'up'))) {
-      return true;
-    }
+  isInRange(date, accuracy) {
+    const { min, max } = this.state;
 
-    if (max && instadate.isBefore(max, this.constructor.normalizeDate(date, accuracy, 'down'))) {
-      return true;
-    }
+    const minOk = min ? (
+      instadate.isAfter(min, this.constructor.normalizeDate(date, accuracy, 'up'))
+    ) : true;
 
-    return false;
+    const maxOk = max ? (
+      instadate.isBefore(max, this.constructor.normalizeDate(date, accuracy, 'down'))
+    ) : true;
+
+    return minOk && maxOk;
   }
 
   handleClick(e) {
     const { year, month, day } = e.currentTarget.dataset;
     let accuracy;
 
+    let nextValue = new Date(this.state.value || this.state.today);
+    nextValue = instadate.noon(instadate.resetTimezoneOffset(nextValue));
     if (year) {
       accuracy = 'year';
-      this.renderedDate.setFullYear(year);
+      nextValue.setFullYear(year);
     }
 
+
     if (month) {
-      this.renderedDate.setMonth(month);
+      nextValue.setMonth(month);
       accuracy = 'month';
     }
 
     if (day) {
       accuracy = 'date';
-      this.renderedDate.setDate(day);
+      nextValue.setDate(day);
     }
 
-    if (!this.isMinMaxOut(this.renderedDate, this.state.min, this.state.max)) {
-      if (this.props.onChange) {
-        this.props.onChange(pureDateFormat(this.renderedDate, this.props.returnFormat), this.props.name);
-        if (accuracy === 'date') {
-          this.closeDatepickerModal();
+    const inRange = this.isInRange(nextValue);
+    const inAccuracyRange = this.isInRange(nextValue, accuracy);
+
+    if (inRange || inAccuracyRange) {
+      if (inAccuracyRange) {
+        if (this.state.min && instadate.isBefore(nextValue, this.state.min)) {
+          nextValue = this.state.min;
+        }
+
+        if (this.state.max && instadate.isAfter(nextValue, this.state.max)) {
+          nextValue = this.state.max;
         }
       }
-    } else if (!this.isMinMaxOut(this.renderedDate, this.state.min, this.state.max, accuracy)) {
-      if (this.state.min && instadate.isBefore(this.renderedDate, this.state.min)) {
-        this.renderedDate = this.state.min;
-      }
-
-      if (this.state.max && instadate.isAfter(this.renderedDate, this.state.max)) {
-        this.renderedDate = this.state.max;
-      }
 
       if (this.props.onChange) {
-        this.props.onChange(pureDateFormat(this.renderedDate, this.props.returnFormat), this.props.name);
+        this.props.onChange(pureDateFormat(nextValue, this.props.returnFormat), this.props.name);
         if (accuracy === 'date') {
           this.closeDatepickerModal();
         }
@@ -191,7 +205,6 @@ class PureDatepicker extends React.Component {
   }
 
   clear() {
-    this.renderedDate = '';
     this.props.onChange('', this.props.name);
   }
 
@@ -224,11 +237,7 @@ class PureDatepicker extends React.Component {
       ...modalAttrs
     } = this.props;
 
-    const renderedDate = new Date((
-      this.constructor.isDateValid(this.state.value) ? this.state.value : this.state.today
-    ).getTime());
-    renderedDate.setHours(0, 0, 0, 0);
-    this.renderedDate = renderedDate;
+    const renderedDate = this.state.value || this.state.today;
 
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
@@ -236,6 +245,7 @@ class PureDatepicker extends React.Component {
       instadate.addDays(firsDatetInPeriod, -firsDatetInPeriod.getDay()),
       instadate.addDays(lastDateInPeriod, 6 - lastDateInPeriod.getDay()));
     const centralYearInPeriod = renderedDate.getFullYear();
+    const yearsRange = this.constructor.getYearsPeriod(centralYearInPeriod, years);
 
     return (
       <div className={className}>
@@ -279,8 +289,6 @@ class PureDatepicker extends React.Component {
                         dateObject,
                         this.state.value,
                         renderedDate,
-                        this.state.min,
-                        this.state.max,
                       )}
                       data-day={date}
                       data-month={month}
@@ -317,16 +325,23 @@ class PureDatepicker extends React.Component {
                       monthName,
                       this.state.value,
                       renderedDate,
-                      this.state.min,
-                      this.state.max,
                     )}
                   >{monthName}</div>
                 ))
               }
             </div>
             <div>
+              <div
+                data-year={yearsRange[0] + years[0]}
+                onClick={this.handleClick}
+                className={this.getYearClasses(
+                  yearsRange[0] + years[0],
+                  this.state.value,
+                  renderedDate,
+                )}
+              >↑</div>
               {
-                this.constructor.getYearsPeriod(centralYearInPeriod, years).map(year => (
+                yearsRange.map(year => (
                   <div
                     key={year}
                     data-year={year}
@@ -335,12 +350,19 @@ class PureDatepicker extends React.Component {
                       year,
                       this.state.value,
                       renderedDate,
-                      this.state.min,
-                      this.state.max,
                     )}
                   >{year}</div>
                 ))
               }
+              <div
+                data-year={yearsRange[yearsRange.length - 1] + years[1]}
+                onClick={this.handleClick}
+                className={this.getYearClasses(
+                  yearsRange[yearsRange.length - 1] + years[1],
+                  this.state.value,
+                  renderedDate,
+                )}
+              >↓</div>
             </div>
           </div>
         </ReactPureModal>
@@ -350,7 +372,7 @@ class PureDatepicker extends React.Component {
 }
 
 PureDatepicker.defaultProps = {
-  today: new Date(),
+  today: instadate.noon(new Date()),
   returnFormat: 'Y-m-d H:i:s',
   format: 'd.m.Y',
   monthsNames: [
@@ -391,7 +413,7 @@ PureDatepicker.defaultProps = {
     'Saturday',
   ],
   weekDaysNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-  years: [-5, 6],
+  years: [-4, 5],
   beginFromDay: 'Sun',
 };
 
