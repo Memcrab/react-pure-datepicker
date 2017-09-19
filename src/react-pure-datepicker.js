@@ -236,6 +236,7 @@ class PureDatepicker extends React.Component {
       placeholder,
       inputClassName,
       min,
+      onFocus,
       disabled,
       max,
       ...modalAttrs
