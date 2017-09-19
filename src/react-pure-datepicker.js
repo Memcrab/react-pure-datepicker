@@ -233,6 +233,7 @@ class PureDatepicker extends React.Component {
       placeholder,
       inputClassName,
       min,
+      disabled,
       max,
       ...modalAttrs
     } = this.props;
@@ -252,6 +253,7 @@ class PureDatepicker extends React.Component {
         <input
           type="text"
           onFocus={this.openDatepickerModal}
+          disabled={disabled}
           className={inputClassName}
           placeholder={placeholder}
           onChange={this.handleInput}
@@ -375,6 +377,7 @@ PureDatepicker.defaultProps = {
   today: instadate.noon(new Date()),
   returnFormat: 'Y-m-d H:i:s',
   format: 'd.m.Y',
+  disabled: false,
   monthsNames: [
     'January',
     'February',
@@ -430,6 +433,7 @@ PureDatepicker.propTypes = {
   monthsNames: PropTypes.array,
   years: PropTypes.array,
   className: PropTypes.string,
+  disabled: PropTypes.boolean,
   name: PropTypes.string,
   placeholder: PropTypes.string,
   inputClassName: PropTypes.string,
