@@ -236,6 +236,7 @@ class PureDatepicker extends React.Component {
       placeholder,
       inputClassName,
       min,
+      required,
       onFocus,
       disabled,
       max,
@@ -260,6 +261,7 @@ class PureDatepicker extends React.Component {
           disabled={disabled}
           className={inputClassName}
           placeholder={placeholder}
+          required={required}
           onChange={this.handleInput}
           value={value ? pureDateFormat(this.state.value, format) : ''}
         />
@@ -382,6 +384,7 @@ PureDatepicker.defaultProps = {
   returnFormat: 'Y-m-d H:i:s',
   format: 'd.m.Y',
   disabled: false,
+  required: false,
   monthsNames: [
     'January',
     'February',
@@ -439,6 +442,7 @@ PureDatepicker.propTypes = {
   years: PropTypes.array,
   className: PropTypes.string,
   disabled: PropTypes.boolean,
+  required: PropTypes.boolean,
   name: PropTypes.string,
   placeholder: PropTypes.string,
   inputClassName: PropTypes.string,
