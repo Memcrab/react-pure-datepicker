@@ -214,6 +214,9 @@ class PureDatepicker extends React.Component {
 
   openDatepickerModal(e) {
     e.currentTarget.blur();
+    if (this.props.onFocus) {
+      this.props.onFocus(e);
+    }
     this.refs.datepicker.open();
   }
 
@@ -426,6 +429,7 @@ PureDatepicker.propTypes = {
     PropTypes.string,
   ]),
   onChange: PropTypes.func,
+  onFocus: PropTypes.func,
   today: PropTypes.instanceOf(Date),
   format: PropTypes.string.isRequired,
   returnFormat: PropTypes.string,
