@@ -1,11 +1,23 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+/* @flow */
+import React, { Component } from 'react';
 import ReactPureModal from 'react-pure-modal';
 import instadate from 'instadate';
 import { format as pureDateFormat } from 'react-pure-time';
 
-class PureDatepicker extends React.Component {
-  static isDateValid(possibleDate) {
+import type {
+  Props,
+  State,
+  Accuracy,
+  Direction,
+  Value,
+  RenderedDate,
+  MouseClick,
+} from './types.js';
+
+class PureDatepicker extends Component<Props, State> {
+  static defaultProps = PureDatepicker.defaultProps;
+
+  static isDateValid(possibleDate: Date): boolean {
     if (Object.prototype.toString.call(possibleDate) === '[object Date]') {
       if (isNaN(possibleDate.getTime())) {
         return false;
@@ -15,7 +27,7 @@ class PureDatepicker extends React.Component {
     return false;
   }
 
-  static getYearsPeriod(currentYear, years) {
+  static getYearsPeriod(currentYear: number, years: number[]): number[] {
     const period = [];
     let fromYear = currentYear + years[0];
     const toYear = currentYear + years[1];
@@ -27,22 +39,22 @@ class PureDatepicker extends React.Component {
     return period;
   }
 
-  static normalizeDate(date, accuracy = '', direction = '') {
+  static normalizeDate(date: Date, accuracy: Accuracy = '', direction: Direction = ''): Date {
     switch (`${accuracy}-${direction}`) {
       case 'month-up':
         return instadate.lastDateInMonth(date);
       case 'month-down':
         return instadate.firstDateInMonth(date);
       case 'year-up':
-        return new Date(date.getFullYear, 11, 31, 0, 0, 0, 0);
+        return new Date(date.getFullYear(), 11, 31, 0, 0, 0, 0);
       case 'year-down':
-        return new Date(date.getFullYear, 0, 1, 0, 0, 0, 0);
+        return new Date(date.getFullYear(), 0, 1, 0, 0, 0, 0);
       default:
         return date;
     }
   }
 
-  static toDate(dateString) {
+  static toDate(dateString): ?Date {
     const date = instadate.parseISOString(dateString);
     if (this.isDateValid(date)) {
       return instadate.noon(date);
@@ -50,7 +62,7 @@ class PureDatepicker extends React.Component {
     return undefined;
   }
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.getDateClasses = this.getDateClasses.bind(this);
     this.getMonthClasses = this.getMonthClasses.bind(this);
@@ -67,7 +79,7 @@ class PureDatepicker extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     const stateUpdate = {};
     if (this.props.value !== nextProps.value) {
       stateUpdate.value = this.constructor.toDate(nextProps.value);
@@ -86,7 +98,8 @@ class PureDatepicker extends React.Component {
     }
   }
 
-  getDateClasses(date, value, renderedDate) {
+  getDateClasses: Function;
+  getDateClasses(date: Date, value: Value, renderedDate: RenderedDate): string {
     const classes = ['date-cell'];
     if (instadate.isWeekendDate(date)) classes.push('weekend');
     if (!instadate.isSameMonth(date, renderedDate)) classes.push('out-month');
@@ -102,7 +115,8 @@ class PureDatepicker extends React.Component {
     return classes.join(' ');
   }
 
-  getMonthClasses(monthName, value, renderedDate) {
+  getMonthClasses: Function;
+  getMonthClasses(monthName: string, value: Value, renderedDate: RenderedDate): string {
     const classes = ['monthName'];
     if (value) {
       const dateByMonth = new Date(
@@ -131,7 +145,8 @@ class PureDatepicker extends React.Component {
     return classes.join(' ');
   }
 
-  getYearClasses(year, value, renderedDate) {
+  getYearClasses: Function;
+  getYearClasses(year: number, value: Value, renderedDate: RenderedDate): string {
     const classes = ['yearName'];
     if (value) {
       const dateByYear = new Date(year, 0, 1, 0, 0, 0, 0);
@@ -145,7 +160,8 @@ class PureDatepicker extends React.Component {
     return classes.join(' ');
   }
 
-  isInRange(date, accuracy) {
+  isInRange: Function;
+  isInRange(date: Date, accuracy: Accuracy): boolean {
     const { min, max } = this.state;
 
     const minOk = min ? (
@@ -159,9 +175,15 @@ class PureDatepicker extends React.Component {
     return minOk && maxOk;
   }
 
-  handleClick(e) {
+  handleClick: Function;
+  handleClick(e: MouseClick): void {
     const { year, month, day } = e.currentTarget.dataset;
     let accuracy;
+
+    if (!this.state.value || !this.state.today) {
+      console.warn('Invalid Date value is choosen!');
+      return;
+    }
 
     let nextValue = new Date(this.state.value || this.state.today);
     nextValue = instadate.noon(instadate.resetTimezoneOffset(nextValue));
@@ -204,7 +226,8 @@ class PureDatepicker extends React.Component {
     }
   }
 
-  clear() {
+  clear: Function;
+  clear(): void {
     this.props.onChange('', this.props.name);
   }
 
@@ -212,7 +235,8 @@ class PureDatepicker extends React.Component {
 
   }
 
-  openDatepickerModal(e) {
+  openDatepickerModal: Function;
+  openDatepickerModal(e: MouseClick): void {
     e.currentTarget.blur();
     if (this.props.onFocus) {
       this.props.onFocus(e);
@@ -244,6 +268,10 @@ class PureDatepicker extends React.Component {
     } = this.props;
 
     const renderedDate = this.state.value || this.state.today;
+    if (!renderedDate) {
+      console.warn('Invalid Date value is choosen!');
+      return;
+    }
 
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
@@ -311,9 +339,9 @@ class PureDatepicker extends React.Component {
               <button
                 onClick={this.handleClick}
                 type="button"
-                data-day={this.state.today.getDate()}
-                data-month={this.state.today.getMonth()}
-                data-year={this.state.today.getFullYear()}
+                data-day={this.state.today ? this.state.today.getDate() : false}
+                data-month={this.state.today ? this.state.today.getMonth() : false}
+                data-year={this.state.today ? this.state.today.getFullYear() : false}
                 className="btn btn-block btn-sm btn-default"
               >Today</button>
               <button
@@ -425,35 +453,6 @@ PureDatepicker.defaultProps = {
   weekDaysNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   years: [-4, 5],
   beginFromDay: 'Sun',
-};
-
-PureDatepicker.propTypes = {
-  value: PropTypes.oneOfType([
-    PropTypes.instanceOf(Date),
-    PropTypes.string,
-  ]),
-  onChange: PropTypes.func,
-  onFocus: PropTypes.func,
-  today: PropTypes.instanceOf(Date),
-  format: PropTypes.string.isRequired,
-  returnFormat: PropTypes.string,
-  weekDaysNamesShort: PropTypes.array,
-  monthsNames: PropTypes.array,
-  years: PropTypes.array,
-  className: PropTypes.string,
-  disabled: PropTypes.bool,
-  required: PropTypes.bool,
-  name: PropTypes.string,
-  placeholder: PropTypes.string,
-  inputClassName: PropTypes.string,
-  min: PropTypes.oneOfType([
-    PropTypes.instanceOf(Date),
-    PropTypes.string,
-  ]),
-  max: PropTypes.oneOfType([
-    PropTypes.instanceOf(Date),
-    PropTypes.string,
-  ]),
 };
 
 export default PureDatepicker;

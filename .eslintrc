@@ -1,5 +1,8 @@
 {
-  "extends": "airbnb",
+  "extends": [
+    "airbnb",
+    "plugin:flowtype/recommended"
+  ],
   "parser": "babel-eslint",
   "globals": {
     "_" : true,
@@ -7,6 +10,10 @@
     "memApp" : true,
     "$" : true
   },
+  "plugins": [
+    "flowtype",
+    "flowtype-errors"
+  ],
   "env": {
     "browser": true,
     "node": true,
@@ -20,6 +27,8 @@
     "import/no-unresolved": 0,
     "import/extensions": 0,
     "react/jsx-filename-extension": 0,
-    "react/forbid-prop-types": 1
+    "react/forbid-prop-types": 1,
+    "jsx-a11y/href-no-hash": 0,
+    "flowtype-errors/show-errors": 2
   }
 }
