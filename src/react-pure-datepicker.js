@@ -67,6 +67,19 @@ class PureDatepicker extends React.Component {
     };
   }
 
+  componentWillMount() {
+    const { min, max, value, today } = this.state;
+    if ((min || max) && (value || today)) {
+      const currentDate = value || today;
+      if (!this.isInRange(currentDate)) {
+        this.setState({
+          value: '',
+          today: instadate.addDays(min, 1),
+        });
+      }
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const stateUpdate = {};
     if (this.props.value !== nextProps.value) {
@@ -212,8 +225,6 @@ class PureDatepicker extends React.Component {
 
   render() {
     const {
-      today,
-      value,
       format,
       weekDaysNamesShort,
       monthsNames,
@@ -221,15 +232,15 @@ class PureDatepicker extends React.Component {
       className,
       placeholder,
       inputClassName,
-      min,
       required,
       onFocus,
       disabled,
-      max,
       ...modalAttrs
     } = this.props;
 
-    const renderedDate = this.state.value || this.state.today;
+    const { value, today } = this.state;
+
+    const renderedDate = value || today;
 
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
