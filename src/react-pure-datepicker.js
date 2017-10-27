@@ -179,13 +179,17 @@ class PureDatepicker extends Component<Props, State> {
   handleClick(e: MouseClick): void {
     const { year, month, day } = e.currentTarget.dataset;
     let accuracy;
+    let nextValue;
 
-    if (!this.state.value || !this.state.today) {
+    if (this.state.value) {
+      nextValue = new Date(this.state.value);
+    } else if (this.state.today) {
+      nextValue = new Date(this.state.today);
+    } else {
       console.warn('Invalid Date value is choosen!');
       return;
     }
 
-    let nextValue = new Date(this.state.value || this.state.today);
     nextValue = instadate.noon(instadate.resetTimezoneOffset(nextValue));
     if (year) {
       accuracy = 'year';
@@ -270,13 +274,13 @@ class PureDatepicker extends Component<Props, State> {
     const renderedDate = this.state.value || this.state.today;
     if (!renderedDate) {
       console.warn('Invalid Date value is choosen!');
-      return;
+      return null;
     }
 
-    const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
+    const firstDateInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
     const dates = instadate.dates(
-      instadate.addDays(firsDatetInPeriod, -firsDatetInPeriod.getDay()),
+      instadate.addDays(firstDateInPeriod, -firstDateInPeriod.getDay()),
       instadate.addDays(lastDateInPeriod, 6 - lastDateInPeriod.getDay()));
     const centralYearInPeriod = renderedDate.getFullYear();
     const yearsRange = this.constructor.getYearsPeriod(centralYearInPeriod, years);

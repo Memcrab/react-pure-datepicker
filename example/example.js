@@ -1,13 +1,19 @@
-import React from 'react';
+/* @flow */
+import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Datepicker from '../dist/react-pure-datepicker.min.js';
 
-class DatepickerContainer extends React.Component {
-  constructor(props) {
+type Props = Object;
+type State = {|
+  value: string,
+|};
+
+class DatepickerContainer extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       value: '',
-    }
+    };
   }
 
   render() {
@@ -27,4 +33,8 @@ class DatepickerContainer extends React.Component {
   }
 }
 
-render(<DatepickerContainer />, document.getElementById('js--datepicker'));
+const element: ?Element = document.getElementById('js--datepicker');
+
+if (element instanceof HTMLElement) {
+  render(<DatepickerContainer />, element);
+}
