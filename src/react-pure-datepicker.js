@@ -72,10 +72,7 @@ class PureDatepicker extends React.Component {
     if (min || max) {
       const currentDate = value || today;
       if (!this.isInRange(currentDate)) {
-        this.setState({
-          value: '',
-          today: instadate.addDays(min, 1),
-        });
+        this.setState({ value: instadate.addDays(min, 1) });
       }
     }
   }
@@ -250,6 +247,8 @@ class PureDatepicker extends React.Component {
     const centralYearInPeriod = renderedDate.getFullYear();
     const yearsRange = this.constructor.getYearsPeriod(centralYearInPeriod, years);
 
+    const isTodayInRange = this.isInRange(this.state.today);
+
     return (
       <div className={className}>
         <input
@@ -312,8 +311,8 @@ class PureDatepicker extends React.Component {
                 data-month={this.state.today.getMonth()}
                 data-year={this.state.today.getFullYear()}
                 className="btn btn-block btn-sm btn-default"
-                disabled={!this.isInRange(this.state.today)}
-                title={!this.isInRange(this.state.today) ? 'Today date is out of range' : ''}
+                disabled={!isTodayInRange}
+                title={!isTodayInRange ? 'Today date is out of range' : ''}
               >Today</button>
               <button
                 onClick={this.clear}
