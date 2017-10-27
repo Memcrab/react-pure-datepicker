@@ -69,7 +69,7 @@ class PureDatepicker extends React.Component {
 
   componentWillMount() {
     const { min, max, value, today } = this.state;
-    if ((min || max) && (value || today)) {
+    if (min || max) {
       const currentDate = value || today;
       if (!this.isInRange(currentDate)) {
         this.setState({
