@@ -21,6 +21,7 @@ class DatepickerContainer extends React.Component {
           }}
           format="Y-m-d"
           returnFormat="Y-m-d"
+          beginFromDay={5}
         />
       </div>
     );

@@ -59,33 +59,14 @@ class PureDatepicker extends React.Component {
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
+    this.getDaysNames = this.getDaysNames.bind(this);
     this.state = {
       value: this.constructor.toDate(props.value),
       min: this.constructor.toDate(props.min),
       max: this.constructor.toDate(props.max),
       today: this.constructor.toDate(props.today),
     };
-    this.customWeekDaysSequence = props.weekDaysNamesShort;
-    this.beginDayIndex = 0;
   }
-
-  componentWillMount() {
-    if (this.props.beginFromDay && typeof this.props.beginFromDay === 'string') {
-      this.beginDayIndex = this.props.weekDaysNamesShort.findIndex(
-        name =>
-          name.toLowerCase() === this.props.beginFromDay.toLowerCase(),
-      );
-      if (this.beginDayIndex === -1) {
-        this.beginDayIndex = 0;
-        return;
-      }
-      const firstPart = this.props.weekDaysNamesShort.slice(0, this.beginDayIndex);
-      this.customWeekDaysSequence = this.props.weekDaysNamesShort
-        .slice(this.beginDayIndex)
-        .concat(firstPart);
-    }
-  }
-
 
   componentWillReceiveProps(nextProps) {
     const stateUpdate = {};
@@ -103,6 +84,15 @@ class PureDatepicker extends React.Component {
     }
     if (Object.keys(stateUpdate).length > 0) {
       this.setState(stateUpdate);
+    }
+  }
+
+  getDaysNames() {
+    if (this.props.beginFromDay < 7 && this.props.beginFromDay > -1) {
+      const firstPart = this.props.weekDaysNamesShort.slice(0, this.props.beginFromDay);
+      return this.props.weekDaysNamesShort
+        .slice(this.props.beginFromDay)
+        .concat(firstPart);
     }
   }
 
@@ -249,6 +239,7 @@ class PureDatepicker extends React.Component {
       today,
       value,
       format,
+      weekDaysNamesShort,
       monthsNames,
       years,
       className,
@@ -259,15 +250,19 @@ class PureDatepicker extends React.Component {
       onFocus,
       disabled,
       max,
+      beginFromDay,
       ...modalAttrs
     } = this.props;
 
     const renderedDate = this.state.value || this.state.today;
 
+    const weekDaysNames = this.getDaysNames() || weekDaysNamesShort;
+
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
-    const prevMonthDays = firsDatetInPeriod.getDay() + (7 - this.beginDayIndex);
-    const nextMonthDays = lastDateInPeriod.getDay() + (7 - this.beginDayIndex);
+    const datesShift = !(beginFromDay < 7 && beginFromDay > -1) ? 7 : beginFromDay;
+    const prevMonthDays = firsDatetInPeriod.getDay() + (7 - datesShift);
+    const nextMonthDays = lastDateInPeriod.getDay() + (7 - datesShift);
 
     const dates = instadate.dates(
       instadate.addDays(firsDatetInPeriod, -(prevMonthDays % 7)),
@@ -299,7 +294,7 @@ class PureDatepicker extends React.Component {
             <div className="calendarWrap">
               <div className="weekdays-names">
                 {
-                  this.customWeekDaysSequence.map(weekDayName => (
+                  weekDaysNames.map(weekDayName => (
                     <div
                       key={weekDayName}
                       className={`${weekDayName.toLowerCase().startsWith('s') ? 'weekend' : ''} weekDayNameShort`}
@@ -447,7 +442,7 @@ PureDatepicker.defaultProps = {
   ],
   weekDaysNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   years: [-4, 5],
-  beginFromDay: 'Sun',
+  beginFromDay: 0,
 };
 
 PureDatepicker.propTypes = {
@@ -477,7 +472,7 @@ PureDatepicker.propTypes = {
     PropTypes.instanceOf(Date),
     PropTypes.string,
   ]),
-  beginFromDay: PropTypes.string,
+  beginFromDay: PropTypes.number,
 };
 
 export default PureDatepicker;
