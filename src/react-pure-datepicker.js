@@ -59,53 +59,58 @@ class PureDatepicker extends React.Component {
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
-    this.state = {
-      value: this.constructor.toDate(props.value),
-      min: this.constructor.toDate(props.min),
-      max: this.constructor.toDate(props.max),
-      today: this.constructor.toDate(props.today),
-    };
-  }
-
-  componentWillMount() {
-    const { min, max, value, today } = this.state;
-    if (min || max) {
-      const currentDate = value || today;
-      if (!this.isInRange(currentDate)) {
-        if (min && !max) {
-          this.setState({ value: instadate.addDays(min, 1) });
-        } else if (max && !min) {
-          this.setState({ value: instadate.addDays(max, -1) });
-        } else if (min && max) {
-          if (
-            instadate.isSameDay(min, max) ||
-            instadate.isSameDay(instadate.addDays(min, 1), max)
-          ) {
-            console.warn('Incorrect min and max. There no dates to choose!');
-          } else {
-            this.setState({ value: instadate.addDays(min, 1) });
-          }
-        }
-      }
-    }
+    this.setComponentState = this.setComponentState.bind(this);
+    this.state = this.setComponentState();
   }
 
   componentWillReceiveProps(nextProps) {
-    const stateUpdate = {};
+    this.setComponentState(nextProps);
+  }
+
+  setComponentState(nextProps = {}) {
+    const updatedState = {};
+    const isInitialSetState = !nextProps.value;
+    const propsToUse = isInitialSetState ? this.props : nextProps;
+    const { min, max, value, today } = propsToUse;
+
     if (this.props.value !== nextProps.value) {
-      stateUpdate.value = this.constructor.toDate(nextProps.value);
-    }
-    if (this.props.min !== nextProps.min) {
-      stateUpdate.min = this.constructor.toDate(nextProps.min);
-    }
-    if (this.props.max !== nextProps.max) {
-      stateUpdate.max = this.constructor.toDate(nextProps.max);
+      updatedState.value = this.constructor.toDate(value);
     }
     if (this.props.today !== nextProps.today) {
-      stateUpdate.today = this.constructor.toDate(nextProps.today);
+      updatedState.today = this.constructor.toDate(today);
     }
-    if (Object.keys(stateUpdate).length > 0) {
-      this.setState(stateUpdate);
+    if (this.props.min !== nextProps.min) {
+      updatedState.min = this.constructor.toDate(min);
+    }
+    if (this.props.max !== nextProps.max) {
+      updatedState.max = this.constructor.toDate(max);
+    }
+
+    if (Object.keys(updatedState).length > 0) {
+      if (updatedState.min || updatedState.max) {
+        const currentDate = updatedState.value || this.props.value || updatedState.today || this.props.today;
+        if (!this.isInRange(currentDate, 'date', updatedState.min || false, updatedState.max || false)) {
+          if (updatedState.min && !updatedState.max) {
+            updatedState.value = instadate.addDays(updatedState.min, 1);
+          } else if (updatedState.max && !updatedState.min) {
+            updatedState.value = instadate.addDays(updatedState.max, -1);
+          } else if (updatedState.min && updatedState.max) {
+            if (
+              instadate.isSameDay(updatedState.min, updatedState.max) ||
+              instadate.isSameDay(instadate.addDays(updatedState.min, 1), updatedState.max)
+            ) {
+              console.warn('Incorrect min and max. There no dates to choose!');
+            } else {
+              updatedState.value = instadate.addDays(updatedState.min, 1);
+            }
+          }
+        }
+      }
+      if (isInitialSetState) {
+        return updatedState;
+      } else {
+        this.setState(updatedState);
+      }
     }
   }
 
@@ -157,8 +162,7 @@ class PureDatepicker extends React.Component {
     return classes.join(' ');
   }
 
-  isInRange(date, accuracy) {
-    const { min, max } = this.state;
+  isInRange(date, accuracy, min = this.state.min, max = this.state.max) {
     const normDateMin = this.constructor.normalizeDate(date, accuracy, 'up');
     const normDateMax = this.constructor.normalizeDate(date, accuracy, 'down');
 
