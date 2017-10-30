@@ -294,12 +294,15 @@ class PureDatepicker extends React.Component {
             <div className="calendarWrap">
               <div className="weekdays-names">
                 {
-                  weekDaysNames.map(weekDayName => (
-                    <div
-                      key={weekDayName}
-                      className={`${weekDayName.toLowerCase().startsWith('s') ? 'weekend' : ''} weekDayNameShort`}
-                    >{weekDayName}</div>
-                  ))
+                  weekDaysNames.map(weekDayName => {
+                    const index = weekDaysNamesShort.indexOf(weekDayName);
+                    return (
+                      <div
+                        key={weekDayName}
+                        className={`${index === 0 || index === 6 ? 'weekend' : ''} weekDayNameShort`}
+                      >{weekDayName}</div>
+                    )
+                  })
                 }
               </div>
               {

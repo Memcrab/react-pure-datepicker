@@ -21,7 +21,11 @@ class DatepickerContainer extends React.Component {
           }}
           format="Y-m-d"
           returnFormat="Y-m-d"
-          beginFromDay={5}
+          // for README
+          // 'weekDaysNamesShort' can starts only with 'Sunday'
+          // first day can be specified with 'beginFromDay'
+          weekDaysNamesShort={['Нд', 'Пн', 'Вт', 'Wed', 'Thu', 'Fri', 'Sat']}
+          beginFromDay={1}
         />
       </div>
     );
