@@ -257,6 +257,10 @@ class PureDatepicker extends React.Component {
     const renderedDate = this.state.value || this.state.today;
 
     const weekDaysNames = this.getDaysNames() || weekDaysNamesShort;
+    const weekendsRef = weekDaysNamesShort.reduce((acc, dayName, i) => {
+      acc[dayName] = i === 0 || i === 6;
+      return acc;
+    }, {});
 
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
@@ -294,15 +298,12 @@ class PureDatepicker extends React.Component {
             <div className="calendarWrap">
               <div className="weekdays-names">
                 {
-                  weekDaysNames.map(weekDayName => {
-                    const index = weekDaysNamesShort.indexOf(weekDayName);
-                    return (
+                  weekDaysNames.map(weekDayName => (
                       <div
                         key={weekDayName}
-                        className={`${index === 0 || index === 6 ? 'weekend' : ''} weekDayNameShort`}
+                        className={`${weekendsRef[weekDayName] ? 'weekend' : ''} weekDayNameShort`}
                       >{weekDayName}</div>
-                    )
-                  })
+                    ))
                 }
               </div>
               {
