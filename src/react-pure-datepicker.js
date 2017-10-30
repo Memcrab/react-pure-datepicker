@@ -72,7 +72,20 @@ class PureDatepicker extends React.Component {
     if (min || max) {
       const currentDate = value || today;
       if (!this.isInRange(currentDate)) {
-        this.setState({ value: instadate.addDays(min, 1) });
+        if (min && !max) {
+          this.setState({ value: instadate.addDays(min, 1) });
+        } else if (max && !min) {
+          this.setState({ value: instadate.addDays(max, -1) });
+        } else if (min && max) {
+          if (
+            instadate.isSameDay(min, max) ||
+            instadate.isSameDay(instadate.addDays(min, 1), max)
+          ) {
+            console.warn('Incorrect min and max. There no dates to choose!');
+          } else {
+            this.setState({ value: instadate.addDays(min, 1) });
+          }
+        }
       }
     }
   }
