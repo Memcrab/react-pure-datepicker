@@ -38,15 +38,19 @@ export type Props = {|
   inputClassName?: string,
   min?: Date | string,
   max?: Date | string,
+  beginFromDay: number,
 |};
-
-export type Value = ?Date;
 
 export type RenderedDate = Date;
 
-export type State = {|
+export type Value = ?Date;
+export type Min = ?Date;
+export type Max = ?Date;
+export type Today = ?Date;
+
+export type State = {
   value: Value,
-  min: ?Date,
-  max: ?Date,
-  today: ?Date,
-|};
+  min: Min,
+  max: Max,
+  today: Today,
+};
