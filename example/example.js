@@ -7,7 +7,7 @@ class DatepickerContainer extends React.Component {
     super(props);
     this.state = {
       value: '',
-    }
+    };
   }
 
   render() {
@@ -21,11 +21,10 @@ class DatepickerContainer extends React.Component {
           }}
           format="Y-m-d"
           returnFormat="Y-m-d"
-          // for README
-          // 'weekDaysNamesShort' can starts only with 'Sunday'
-          // first day can be specified with 'beginFromDay'
           weekDaysNamesShort={['Нд', 'Пн', 'Вт', 'Wed', 'Thu', 'Fri', 'Sat']}
           beginFromDay={1}
+          min={new Date('Fri Oct 28 2012 13:08:52 GMT+0300 (EEST)')}
+          max={new Date('Fri Oct 30 2012 13:08:52 GMT+0300 (EEST)')}
         />
       </div>
     );
