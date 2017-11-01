@@ -15,6 +15,7 @@ import type {
   Min,
   Max,
   Today,
+  WeekDaysNames,
 } from './types.js';
 
 class PureDatepicker extends Component<Props, State> {
@@ -79,11 +80,12 @@ class PureDatepicker extends Component<Props, State> {
     this.state = this.getComponentState({}, this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     this.setState(this.getComponentState(this.props, nextProps));
   }
 
-  getComponentState(props, nextProps) {
+  getComponentState: Function;
+  getComponentState(props: Props, nextProps: Props): State {
     const updatedState = {};
     const { min, max, value, today } = nextProps;
 
@@ -121,7 +123,8 @@ class PureDatepicker extends Component<Props, State> {
     return updatedState;
   }
 
-  getDaysNames() {
+  getDaysNames: Function;
+  getDaysNames(): WeekDaysNames | string[] {
     if (this.props.beginFromDay < 7 && this.props.beginFromDay > -1) {
       const firstPart = this.props.weekDaysNamesShort.slice(0, this.props.beginFromDay);
       return this.props.weekDaysNamesShort
@@ -303,11 +306,11 @@ class PureDatepicker extends Component<Props, State> {
     const firstDateInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
     const datesShift = !(beginFromDay < 7 && beginFromDay > -1) ? 7 : beginFromDay;
-    const prevMonthDays = firsDatetInPeriod.getDay() + (7 - datesShift);
+    const prevMonthDays = firstDateInPeriod.getDay() + (7 - datesShift);
     const nextMonthDays = lastDateInPeriod.getDay() + (7 - datesShift);
 
     const dates = instadate.dates(
-      instadate.addDays(firsDatetInPeriod, -(prevMonthDays % 7)),
+      instadate.addDays(firstDateInPeriod, -(prevMonthDays % 7)),
       instadate.addDays(lastDateInPeriod, 6 - (nextMonthDays % 7)),
     );
     const centralYearInPeriod = renderedDate.getFullYear();
