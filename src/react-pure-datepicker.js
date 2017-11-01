@@ -113,6 +113,7 @@ class PureDatepicker extends React.Component {
         .slice(this.props.beginFromDay)
         .concat(firstPart);
     }
+    return null;
   }
 
   getDateClasses(date, value, renderedDate) {
