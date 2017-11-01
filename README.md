@@ -1,5 +1,7 @@
 # react-pure-datepicker
 
+React datepicker with great UX
+
 install
 -------
 
@@ -24,3 +26,6 @@ API
 |------|------|---------|-------------|
 |weekDaysNamesShort|Array[string]|['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']|names for every day, can starts only with 'Sunday', first day can be specified with 'beginFromDay'|
 
+## Contributors
+- [Max Mykhailenko](https://github.com/max-mykhailenko)
+- [kramarmm](https://github.com/kramarmm)

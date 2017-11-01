@@ -2,11 +2,19 @@ const path = require('path');
 const webpack = require('webpack');
 const env = process.env.NODE_ENV;
 
-const reactExternal = {
-  root: 'React',
-  commonjs2: 'react',
-  commonjs: 'react',
-  amd: 'react',
+const externals = {
+  react: {
+    root: 'React',
+    commonjs2: 'react',
+    commonjs: 'react',
+    amd: 'react',
+  },
+  ['react-pure-modal']: {
+    root: 'react-pure-modal',
+    commonjs2: 'react-pure-modal',
+    commonjs: 'react-pure-modal',
+    amd: 'react-pure-modal',
+  },
 };
 
 const config = {
@@ -33,9 +41,7 @@ const config = {
     modulesDirectories: ['node_modules'],
     extensions: ['', '.js'],
   },
-  externals: {
-    react: reactExternal,
-  },
+  externals,
 };
 
 if (env === 'production') {
