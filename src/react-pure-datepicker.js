@@ -59,6 +59,7 @@ class PureDatepicker extends React.Component {
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
+    this.getDaysNames = this.getDaysNames.bind(this);
     this.getComponentState = this.getComponentState.bind(this);
     this.state = this.getComponentState({}, this.props);
   }
@@ -103,6 +104,16 @@ class PureDatepicker extends React.Component {
       }
     }
     return updatedState;
+  }
+
+  getDaysNames() {
+    if (this.props.beginFromDay < 7 && this.props.beginFromDay > -1) {
+      const firstPart = this.props.weekDaysNamesShort.slice(0, this.props.beginFromDay);
+      return this.props.weekDaysNamesShort
+        .slice(this.props.beginFromDay)
+        .concat(firstPart);
+    }
+    return this.props.weekDaysNamesShort;
   }
 
   getDateClasses(date, value, renderedDate) {
@@ -240,6 +251,7 @@ class PureDatepicker extends React.Component {
       required,
       onFocus,
       disabled,
+      beginFromDay,
       ...modalAttrs
     } = this.props;
 
@@ -247,11 +259,22 @@ class PureDatepicker extends React.Component {
 
     const renderedDate = value || today;
 
+    const weekDaysNames = this.getDaysNames();
+    const weekendsRef = weekDaysNamesShort.reduce((acc, dayName, i) => {
+      acc[dayName] = i === 0 || i === 6;
+      return acc;
+    }, {});
+
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
+    const datesShift = !(beginFromDay < 7 && beginFromDay > -1) ? 7 : beginFromDay;
+    const prevMonthDays = firsDatetInPeriod.getDay() + (7 - datesShift);
+    const nextMonthDays = lastDateInPeriod.getDay() + (7 - datesShift);
+
     const dates = instadate.dates(
-      instadate.addDays(firsDatetInPeriod, -firsDatetInPeriod.getDay()),
-      instadate.addDays(lastDateInPeriod, 6 - lastDateInPeriod.getDay()));
+      instadate.addDays(firsDatetInPeriod, -(prevMonthDays % 7)),
+      instadate.addDays(lastDateInPeriod, 6 - (nextMonthDays % 7)),
+    );
     const centralYearInPeriod = renderedDate.getFullYear();
     const yearsRange = this.constructor.getYearsPeriod(centralYearInPeriod, years);
 
@@ -280,12 +303,12 @@ class PureDatepicker extends React.Component {
             <div className="calendarWrap">
               <div className="weekdays-names">
                 {
-                  weekDaysNamesShort.map((weekDayName, i) => (
-                    <div
-                      key={weekDayName}
-                      className={`${i === 0 || i === 6 ? 'weekend' : ''} weekDayNameShort`}
-                    >{weekDayName}</div>
-                  ))
+                  weekDaysNames.map(weekDayName => (
+                      <div
+                        key={weekDayName}
+                        className={`${weekendsRef[weekDayName] ? 'weekend' : ''} weekDayNameShort`}
+                      >{weekDayName}</div>
+                    ))
                 }
               </div>
               {
@@ -430,7 +453,7 @@ PureDatepicker.defaultProps = {
   ],
   weekDaysNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   years: [-4, 5],
-  beginFromDay: 'Sun',
+  beginFromDay: 0,
 };
 
 PureDatepicker.propTypes = {
@@ -460,6 +483,7 @@ PureDatepicker.propTypes = {
     PropTypes.instanceOf(Date),
     PropTypes.string,
   ]),
+  beginFromDay: PropTypes.number,
 };
 
 export default PureDatepicker;
