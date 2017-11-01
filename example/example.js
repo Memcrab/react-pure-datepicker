@@ -27,6 +27,10 @@ class DatepickerContainer extends Component<Props, State> {
           }}
           format="Y-m-d"
           returnFormat="Y-m-d"
+          weekDaysNamesShort={['Нд', 'Пн', 'Вт', 'Wed', 'Thu', 'Fri', 'Sat']}
+          beginFromDay={1}
+          min={new Date('Fri Oct 28 2012 13:08:52 GMT+0300 (EEST)')}
+          max={new Date('Fri Oct 30 2012 13:08:52 GMT+0300 (EEST)')}
         />
       </div>
     );
