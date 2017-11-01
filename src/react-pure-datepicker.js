@@ -113,7 +113,7 @@ class PureDatepicker extends React.Component {
         .slice(this.props.beginFromDay)
         .concat(firstPart);
     }
-    return null;
+    return this.props.weekDaysNamesShort;
   }
 
   getDateClasses(date, value, renderedDate) {
@@ -259,7 +259,7 @@ class PureDatepicker extends React.Component {
 
     const renderedDate = value || today;
 
-    const weekDaysNames = this.getDaysNames() || weekDaysNamesShort;
+    const weekDaysNames = this.getDaysNames();
     const weekendsRef = weekDaysNamesShort.reduce((acc, dayName, i) => {
       acc[dayName] = i === 0 || i === 6;
       return acc;
