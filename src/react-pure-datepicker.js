@@ -59,18 +59,17 @@ class PureDatepicker extends React.Component {
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
-    this.setComponentState = this.setComponentState.bind(this);
-    this.state = this.setComponentState();
+    this.getComponentState = this.getComponentState.bind(this);
+    this.state = this.getComponentState(this.props, {});
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setComponentState(nextProps);
+    this.setState(this.getComponentState(this.props, nextProps));
   }
 
-  setComponentState(nextProps = {}) {
+  getComponentState(props, nextProps) {
     const updatedState = {};
-    const isInitialSetState = !nextProps.value;
-    const propsToUse = isInitialSetState ? this.props : nextProps;
+    const propsToUse = nextProps.value ? nextProps : props;
     const { min, max, value, today } = propsToUse;
 
     if (this.props.value !== nextProps.value) {
@@ -91,27 +90,20 @@ class PureDatepicker extends React.Component {
         const currentDate = updatedState.value || this.props.value || updatedState.today || this.props.today;
         if (!this.isInRange(currentDate, 'date', updatedState.min || false, updatedState.max || false)) {
           if (updatedState.min && !updatedState.max) {
-            updatedState.value = instadate.addDays(updatedState.min, 1);
+            updatedState.value = updatedState.min;
           } else if (updatedState.max && !updatedState.min) {
-            updatedState.value = instadate.addDays(updatedState.max, -1);
+            updatedState.value = updatedState.max;
           } else if (updatedState.min && updatedState.max) {
-            if (
-              instadate.isSameDay(updatedState.min, updatedState.max) ||
-              instadate.isSameDay(instadate.addDays(updatedState.min, 1), updatedState.max)
-            ) {
+            if (instadate.isSameDay(updatedState.min, updatedState.max)) {
               console.warn('Incorrect min and max. There no dates to choose!');
             } else {
-              updatedState.value = instadate.addDays(updatedState.min, 1);
+              updatedState.value = updatedState.min;
             }
           }
         }
       }
-      if (isInitialSetState) {
-        return updatedState;
-      } else {
-        this.setState(updatedState);
-      }
     }
+    return updatedState;
   }
 
   getDateClasses(date, value, renderedDate) {
@@ -166,8 +158,8 @@ class PureDatepicker extends React.Component {
     const normDateMin = this.constructor.normalizeDate(date, accuracy, 'up');
     const normDateMax = this.constructor.normalizeDate(date, accuracy, 'down');
 
-    const minOk = min ? instadate.isAfter(normDateMin, min) : true;
-    const maxOk = max ? instadate.isBefore(normDateMax, max) : true;
+    const minOk = min ? instadate.isAfter(normDateMin, instadate.addDays(min, -1)) : true;
+    const maxOk = max ? instadate.isBefore(normDateMax, instadate.addDays(max, 1)) : true;
 
     return minOk && maxOk;
   }
