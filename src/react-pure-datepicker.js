@@ -60,7 +60,7 @@ class PureDatepicker extends React.Component {
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
     this.getComponentState = this.getComponentState.bind(this);
-    this.state = this.getComponentState(this.props, {});
+    this.state = this.getComponentState({}, this.props);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -69,25 +69,24 @@ class PureDatepicker extends React.Component {
 
   getComponentState(props, nextProps) {
     const updatedState = {};
-    const propsToUse = nextProps.value ? nextProps : props;
-    const { min, max, value, today } = propsToUse;
+    const { min, max, value, today } = nextProps;
 
-    if (this.props.value !== nextProps.value) {
+    if (props.value !== value) {
       updatedState.value = this.constructor.toDate(value);
     }
-    if (this.props.today !== nextProps.today) {
+    if (props.today !== today) {
       updatedState.today = this.constructor.toDate(today);
     }
-    if (this.props.min !== nextProps.min) {
+    if (props.min !== min) {
       updatedState.min = this.constructor.toDate(min);
     }
-    if (this.props.max !== nextProps.max) {
+    if (props.max !== max) {
       updatedState.max = this.constructor.toDate(max);
     }
 
     if (Object.keys(updatedState).length > 0) {
       if (updatedState.min || updatedState.max) {
-        const currentDate = updatedState.value || this.props.value || updatedState.today || this.props.today;
+        const currentDate = updatedState.value || props.value || updatedState.today || props.today;
         if (!this.isInRange(currentDate, 'date', updatedState.min || false, updatedState.max || false)) {
           if (updatedState.min && !updatedState.max) {
             updatedState.value = updatedState.min;
