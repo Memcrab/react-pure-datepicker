@@ -7,7 +7,7 @@ class DatepickerContainer extends React.Component {
     super(props);
     this.state = {
       value: '',
-    }
+    };
   }
 
   render() {
@@ -21,6 +21,8 @@ class DatepickerContainer extends React.Component {
           }}
           format="Y-m-d"
           returnFormat="Y-m-d"
+          min={new Date('Fri Oct 28 2012 13:08:52 GMT+0300 (EEST)')}
+          max={new Date('Fri Oct 30 2012 13:08:52 GMT+0300 (EEST)')}
         />
       </div>
     );

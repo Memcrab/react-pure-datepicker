@@ -34,9 +34,9 @@ class PureDatepicker extends React.Component {
       case 'month-down':
         return instadate.firstDateInMonth(date);
       case 'year-up':
-        return new Date(date.getFullYear, 11, 31, 0, 0, 0, 0);
+        return new Date(date.getFullYear(), 11, 31, 0, 0, 0, 0);
       case 'year-down':
-        return new Date(date.getFullYear, 0, 1, 0, 0, 0, 0);
+        return new Date(date.getFullYear(), 0, 1, 0, 0, 0, 0);
       default:
         return date;
     }
@@ -59,31 +59,50 @@ class PureDatepicker extends React.Component {
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
-    this.state = {
-      value: this.constructor.toDate(props.value),
-      min: this.constructor.toDate(props.min),
-      max: this.constructor.toDate(props.max),
-      today: this.constructor.toDate(props.today),
-    };
+    this.getComponentState = this.getComponentState.bind(this);
+    this.state = this.getComponentState({}, this.props);
   }
 
   componentWillReceiveProps(nextProps) {
-    const stateUpdate = {};
-    if (this.props.value !== nextProps.value) {
-      stateUpdate.value = this.constructor.toDate(nextProps.value);
+    this.setState(this.getComponentState(this.props, nextProps));
+  }
+
+  getComponentState(props, nextProps) {
+    const updatedState = {};
+    const { min, max, value, today } = nextProps;
+
+    if (props.value !== value) {
+      updatedState.value = this.constructor.toDate(value);
     }
-    if (this.props.min !== nextProps.min) {
-      stateUpdate.min = this.constructor.toDate(nextProps.min);
+    if (props.today !== today) {
+      updatedState.today = this.constructor.toDate(today);
     }
-    if (this.props.max !== nextProps.max) {
-      stateUpdate.max = this.constructor.toDate(nextProps.max);
+    if (props.min !== min) {
+      updatedState.min = this.constructor.toDate(min);
     }
-    if (this.props.today !== nextProps.today) {
-      stateUpdate.today = this.constructor.toDate(nextProps.today);
+    if (props.max !== max) {
+      updatedState.max = this.constructor.toDate(max);
     }
-    if (Object.keys(stateUpdate).length > 0) {
-      this.setState(stateUpdate);
+
+    if (Object.keys(updatedState).length > 0) {
+      if (updatedState.min || updatedState.max) {
+        const currentDate = updatedState.value || props.value || updatedState.today || props.today;
+        if (!this.isInRange(currentDate, 'date', updatedState.min || false, updatedState.max || false)) {
+          if (updatedState.min && !updatedState.max) {
+            updatedState.value = updatedState.min;
+          } else if (updatedState.max && !updatedState.min) {
+            updatedState.value = updatedState.max;
+          } else if (updatedState.min && updatedState.max) {
+            if (instadate.isSameDay(updatedState.min, updatedState.max)) {
+              console.warn('Incorrect min and max. There no dates to choose!');
+            } else {
+              updatedState.value = updatedState.min;
+            }
+          }
+        }
+      }
     }
+    return updatedState;
   }
 
   getDateClasses(date, value, renderedDate) {
@@ -104,57 +123,42 @@ class PureDatepicker extends React.Component {
 
   getMonthClasses(monthName, value, renderedDate) {
     const classes = ['monthName'];
-    if (value) {
-      const dateByMonth = new Date(
-        value.getFullYear(),
-        this.props.monthsNames.indexOf(monthName),
-        1,
-        0,
-        0,
-        0,
-        0,
-      );
-      if (instadate.isSameMonth(dateByMonth, value)) classes.push('selected');
-      if (!this.isInRange(dateByMonth, 'month')) classes.push('out-min-max');
-    } else {
-      const dateByMonth = new Date(
-        renderedDate.getFullYear(),
-        this.props.monthsNames.indexOf(monthName),
-        1,
-        0,
-        0,
-        0,
-        0,
-      );
-      if (instadate.isSameMonth(dateByMonth, renderedDate)) classes.push('pre-selected');
-    }
+    const classForSameMonth = value ? 'selected' : 'pre-selected';
+    const date = value || renderedDate;
+
+    const dateByMonth = new Date(
+      date.getFullYear(),
+      this.props.monthsNames.indexOf(monthName),
+      1,
+      0,
+      0,
+      0,
+      0,
+    );
+    if (instadate.isSameMonth(dateByMonth, date)) classes.push(classForSameMonth);
+    if (!this.isInRange(dateByMonth, 'month')) classes.push('out-min-max');
+
     return classes.join(' ');
   }
 
   getYearClasses(year, value, renderedDate) {
     const classes = ['yearName'];
-    if (value) {
-      const dateByYear = new Date(year, 0, 1, 0, 0, 0, 0);
-      if (instadate.isSameYear(dateByYear, value)) classes.push('selected');
-      if (!this.isInRange(dateByYear, 'year')) classes.push('out-min-max');
-    } else {
-      const dateByYear = new Date(year, 0, 1, 0, 0, 0, 0);
-      if (instadate.isSameYear(dateByYear, renderedDate)) classes.push('pre-selected');
-    }
+    const classForSameYear = value ? 'selected' : 'pre-selected';
+    const date = value || renderedDate;
+
+    const dateByYear = new Date(year, 0, 1, 0, 0, 0, 0);
+    if (instadate.isSameYear(dateByYear, date)) classes.push(classForSameYear);
+    if (!this.isInRange(dateByYear, 'year')) classes.push('out-min-max');
 
     return classes.join(' ');
   }
 
-  isInRange(date, accuracy) {
-    const { min, max } = this.state;
+  isInRange(date, accuracy, min = this.state.min, max = this.state.max) {
+    const normDateMin = this.constructor.normalizeDate(date, accuracy, 'up');
+    const normDateMax = this.constructor.normalizeDate(date, accuracy, 'down');
 
-    const minOk = min ? (
-      instadate.isAfter(min, this.constructor.normalizeDate(date, accuracy, 'up'))
-    ) : true;
-
-    const maxOk = max ? (
-      instadate.isBefore(max, this.constructor.normalizeDate(date, accuracy, 'down'))
-    ) : true;
+    const minOk = min ? instadate.isAfter(normDateMin, instadate.addDays(min, -1)) : true;
+    const maxOk = max ? instadate.isBefore(normDateMax, instadate.addDays(max, 1)) : true;
 
     return minOk && maxOk;
   }
@@ -226,8 +230,6 @@ class PureDatepicker extends React.Component {
 
   render() {
     const {
-      today,
-      value,
       format,
       weekDaysNamesShort,
       monthsNames,
@@ -235,15 +237,15 @@ class PureDatepicker extends React.Component {
       className,
       placeholder,
       inputClassName,
-      min,
       required,
       onFocus,
       disabled,
-      max,
       ...modalAttrs
     } = this.props;
 
-    const renderedDate = this.state.value || this.state.today;
+    const { value, today } = this.state;
+
+    const renderedDate = value || today;
 
     const firsDatetInPeriod = instadate.firstDateInMonth(renderedDate);
     const lastDateInPeriod = instadate.lastDateInMonth(renderedDate);
@@ -252,6 +254,8 @@ class PureDatepicker extends React.Component {
       instadate.addDays(lastDateInPeriod, 6 - lastDateInPeriod.getDay()));
     const centralYearInPeriod = renderedDate.getFullYear();
     const yearsRange = this.constructor.getYearsPeriod(centralYearInPeriod, years);
+
+    const isTodayInRange = this.isInRange(this.state.today);
 
     return (
       <div className={className}>
@@ -315,6 +319,8 @@ class PureDatepicker extends React.Component {
                 data-month={this.state.today.getMonth()}
                 data-year={this.state.today.getFullYear()}
                 className="btn btn-block btn-sm btn-default"
+                disabled={!isTodayInRange}
+                title={!isTodayInRange ? 'Today date is out of range' : ''}
               >Today</button>
               <button
                 onClick={this.clear}
