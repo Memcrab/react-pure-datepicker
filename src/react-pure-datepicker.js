@@ -175,7 +175,7 @@ class PureDatepicker extends React.Component {
   }
 
   handleClick(e) {
-    const { year, month, day, apply } = e.currentTarget.dataset;
+    const { year, month, day, btnApply } = e.currentTarget.dataset;
     let accuracy;
 
     let nextValue = new Date(this.state.value || this.state.today);
@@ -214,11 +214,11 @@ class PureDatepicker extends React.Component {
         this.props.onChange(
           pureDateFormat(nextValue, this.props.returnFormat),
           this.props.name,
-          apply,
+          btnApply,
         );
         if (
           (accuracy === 'date' && !this.props.applyBtn) ||
-          (apply && this.props.applyBtn)
+          (btnApply && this.props.applyBtn)
         ) {
           this.closeDatepickerModal();
         }
@@ -332,6 +332,7 @@ class PureDatepicker extends React.Component {
                         this.state.value,
                         renderedDate,
                       )}
+                      data-day-cell
                       data-day={date}
                       data-month={month}
                       data-year={year}
@@ -345,6 +346,7 @@ class PureDatepicker extends React.Component {
               <button
                 onClick={this.handleClick}
                 type="button"
+                data-btn-today
                 data-day={this.state.today.getDate()}
                 data-month={this.state.today.getMonth()}
                 data-year={this.state.today.getFullYear()}
@@ -356,8 +358,8 @@ class PureDatepicker extends React.Component {
                 this.props.applyBtn ? (
                   <button
                     type="button"
-                    data-apply
-                    className={this.props.applyBtnClassName}
+                    data-btn-apply
+                    className="btn btn-block btn-sm btn-default"
                     onClick={this.handleClick}
                     disabled={!this.state.value}
                   >
@@ -368,16 +370,17 @@ class PureDatepicker extends React.Component {
               {
                 this.props.clearBtn ? (
                   <button
+                    data-btn-clear
                     onClick={this.clear}
                     type="button"
-                    className={this.props.clearBtnClassName}
+                    className="btn btn-block btn-sm btn-default"
                   >
                     Clear
                   </button>
                 ) : null
               }
             </div>
-            <div>
+            <div data-month-section>
               {
                 monthsNames.map((monthName, index) => (
                   <div
@@ -393,8 +396,9 @@ class PureDatepicker extends React.Component {
                 ))
               }
             </div>
-            <div>
+            <div data-year-section>
               <div
+                data-arrow-smaller
                 data-year={yearsRange[0] + years[0]}
                 onClick={this.handleClick}
                 className={this.getYearClasses(
@@ -418,6 +422,7 @@ class PureDatepicker extends React.Component {
                 ))
               }
               <div
+                data-arrow-bigger
                 data-year={yearsRange[yearsRange.length - 1] + years[1]}
                 onClick={this.handleClick}
                 className={this.getYearClasses(
@@ -482,8 +487,6 @@ PureDatepicker.defaultProps = {
   beginFromDay: 0,
   clearBtn: true,
   applyBtn: false,
-  applyBtnClassName: 'btn btn-block btn-sm btn-default',
-  clearBtnClassName: 'btn btn-block btn-sm btn-default',
 };
 
 PureDatepicker.propTypes = {
@@ -515,9 +518,7 @@ PureDatepicker.propTypes = {
   ]),
   beginFromDay: PropTypes.number,
   clearBtn: PropTypes.bool,
-  clearBtnClassName: PropTypes.string,
   applyBtn: PropTypes.bool,
-  applyBtnClassName: PropTypes.string,
 };
 
 export default PureDatepicker;
