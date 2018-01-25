@@ -19,6 +19,9 @@ class DatepickerContainer extends React.Component {
             console.log('value =>', value);
             this.setState({ value });
           }}
+          applyBtn
+          applyBtnClassName="apply-btn"
+          clearBtn={false}
           format="Y-m-d"
           returnFormat="Y-m-d"
           weekDaysNamesShort={['Нд', 'Пн', 'Вт', 'Wed', 'Thu', 'Fri', 'Sat']}

@@ -38,7 +38,7 @@ class PureDatepicker extends React.Component {
       case 'year-down':
         return new Date(date.getFullYear(), 0, 1, 0, 0, 0, 0);
       default:
-        return date;
+        return new Date(date);
     }
   }
 
@@ -175,7 +175,7 @@ class PureDatepicker extends React.Component {
   }
 
   handleClick(e) {
-    const { year, month, day } = e.currentTarget.dataset;
+    const { year, month, day, apply } = e.currentTarget.dataset;
     let accuracy;
 
     let nextValue = new Date(this.state.value || this.state.today);
@@ -211,8 +211,15 @@ class PureDatepicker extends React.Component {
       }
 
       if (this.props.onChange) {
-        this.props.onChange(pureDateFormat(nextValue, this.props.returnFormat), this.props.name);
-        if (accuracy === 'date') {
+        this.props.onChange(
+          pureDateFormat(nextValue, this.props.returnFormat),
+          this.props.name,
+          apply,
+        );
+        if (
+          (accuracy === 'date' && !this.props.applyBtn) ||
+          (apply && this.props.applyBtn)
+        ) {
           this.closeDatepickerModal();
         }
       }
@@ -345,11 +352,30 @@ class PureDatepicker extends React.Component {
                 disabled={!isTodayInRange}
                 title={!isTodayInRange ? 'Today date is out of range' : ''}
               >Today</button>
-              <button
-                onClick={this.clear}
-                type="button"
-                className="btn btn-block btn-sm btn-default"
-              >Clear</button>
+              {
+                this.props.applyBtn ? (
+                  <button
+                    type="button"
+                    data-apply
+                    className={this.props.applyBtnClassName}
+                    onClick={this.handleClick}
+                    disabled={!this.state.value}
+                  >
+                    Apply
+                  </button>
+                ) : null
+              }
+              {
+                this.props.clearBtn ? (
+                  <button
+                    onClick={this.clear}
+                    type="button"
+                    className={this.props.clearBtnClassName}
+                  >
+                    Clear
+                  </button>
+                ) : null
+              }
             </div>
             <div>
               {
@@ -454,6 +480,10 @@ PureDatepicker.defaultProps = {
   weekDaysNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   years: [-4, 5],
   beginFromDay: 0,
+  clearBtn: true,
+  applyBtn: false,
+  applyBtnClassName: 'btn btn-block btn-sm btn-default',
+  clearBtnClassName: 'btn btn-block btn-sm btn-default',
 };
 
 PureDatepicker.propTypes = {
@@ -484,6 +514,10 @@ PureDatepicker.propTypes = {
     PropTypes.string,
   ]),
   beginFromDay: PropTypes.number,
+  clearBtn: PropTypes.bool,
+  clearBtnClassName: PropTypes.string,
+  applyBtn: PropTypes.bool,
+  applyBtnClassName: PropTypes.string,
 };
 
 export default PureDatepicker;
