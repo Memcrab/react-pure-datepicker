@@ -49,6 +49,7 @@ export type Max = ?Date;
 export type Today = ?Date;
 
 export type State = {
+  calendarValue: Value,
   value: Value,
   min: Min,
   max: Max,

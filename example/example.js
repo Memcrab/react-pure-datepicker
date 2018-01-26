@@ -25,6 +25,8 @@ class DatepickerContainer extends Component<Props, State> {
             console.log('value =>', value);
             this.setState({ value });
           }}
+          applyBtn
+          clearBtn={false}
           format="Y-m-d"
           returnFormat="Y-m-d"
           weekDaysNamesShort={['Нд', 'Пн', 'Вт', 'Wed', 'Thu', 'Fri', 'Sat']}
