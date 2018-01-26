@@ -68,7 +68,7 @@ class PureDatepicker extends React.Component {
     this.setState(this.getComponentState(this.props, nextProps));
   }
 
-  getComponentState(props, nextProps) {
+  getComponentState(props, nextProps, applyBtn) {
     const updatedState = {};
     const { min, max, value, today } = nextProps;
 
@@ -103,6 +103,13 @@ class PureDatepicker extends React.Component {
         }
       }
     }
+
+    updatedState.currentValue = updatedState.value;
+
+    if (applyBtn && this.state) {
+      updatedState.value = this.state.value;
+    }
+
     return updatedState;
   }
 
@@ -178,7 +185,9 @@ class PureDatepicker extends React.Component {
     const { year, month, day, btnApply } = e.currentTarget.dataset;
     let accuracy;
 
-    let nextValue = new Date(this.state.value || this.state.today);
+    let nextValue = this.props.applyBtn
+      ? new Date(this.state.currentValue || this.state.today)
+      : new Date(this.state.value || this.state.today);
     nextValue = instadate.noon(instadate.resetTimezoneOffset(nextValue));
     if (year) {
       accuracy = 'year';
@@ -210,17 +219,33 @@ class PureDatepicker extends React.Component {
         }
       }
 
-      if (this.props.onChange) {
+      // ---------- onCHANGE WHEN applyBtn IS PRESSED ---------- //
+      if (this.props.applyBtn) {
+        this.setState(
+          this.getComponentState(
+            this.props,
+            { ...this.props, value: nextValue },
+            true,
+          ),
+        );
+
+        if (this.props.onChange && btnApply) {
+          this.props.onChange(
+            pureDateFormat(nextValue, this.props.returnFormat),
+            this.props.name,
+          );
+          return this.closeDatepickerModal();
+        }
+      }
+
+      // ---------- onCHANGE EVERY TIME ---------- //
+      if (this.props.onChange && !this.props.applyBtn) {
         this.props.onChange(
           pureDateFormat(nextValue, this.props.returnFormat),
           this.props.name,
-          btnApply,
         );
-        if (
-          (accuracy === 'date' && !this.props.applyBtn) ||
-          (btnApply && this.props.applyBtn)
-        ) {
-          this.closeDatepickerModal();
+        if (accuracy === 'date') {
+          return this.closeDatepickerModal();
         }
       }
     }
@@ -258,6 +283,7 @@ class PureDatepicker extends React.Component {
       required,
       onFocus,
       disabled,
+      applyBtn,
       beginFromDay,
       ...modalAttrs
     } = this.props;
@@ -329,7 +355,7 @@ class PureDatepicker extends React.Component {
                       key={`${month}-${date}`}
                       className={this.getDateClasses(
                         dateObject,
-                        this.state.value,
+                        applyBtn ? this.state.currentValue : this.state.value,
                         renderedDate,
                       )}
                       data-day-cell
@@ -361,7 +387,7 @@ class PureDatepicker extends React.Component {
                     data-btn-apply
                     className="btn btn-block btn-sm btn-default"
                     onClick={this.handleClick}
-                    disabled={!this.state.value}
+                    disabled={!this.state.currentValue}
                   >
                     Apply
                   </button>
@@ -389,7 +415,7 @@ class PureDatepicker extends React.Component {
                     onClick={this.handleClick}
                     className={this.getMonthClasses(
                       monthName,
-                      this.state.value,
+                      applyBtn ? this.state.currentValue : this.state.value,
                       renderedDate,
                     )}
                   >{monthName}</div>
@@ -415,7 +441,7 @@ class PureDatepicker extends React.Component {
                     onClick={this.handleClick}
                     className={this.getYearClasses(
                       year,
-                      this.state.value,
+                      applyBtn ? this.state.currentValue : this.state.value,
                       renderedDate,
                     )}
                   >{year}</div>
