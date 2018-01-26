@@ -58,6 +58,7 @@ class PureDatepicker extends React.Component {
     this.handleClick = this.handleClick.bind(this);
     this.hanleApplyBtnClick = this.hanleApplyBtnClick.bind(this);
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
+    this.handleCloseDatepickerModal = this.handleCloseDatepickerModal.bind(this);
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
     this.getDaysNames = this.getDaysNames.bind(this);
@@ -268,6 +269,11 @@ class PureDatepicker extends React.Component {
     this.refs.datepicker.close();
   }
 
+  handleCloseDatepickerModal() {
+    this.setState({ calendarValue: this.state.value });
+    return true;
+  }
+
   render() {
     const {
       format,
@@ -327,6 +333,7 @@ class PureDatepicker extends React.Component {
           header="Select date"
           ref="datepicker"
           className="react-pure-calendar-modal"
+          onClose={this.handleCloseDatepickerModal}
           {...modalAttrs}
         >
           <div className="react-pure-calendar">
