@@ -68,12 +68,15 @@ class PureDatepicker extends React.Component {
     this.setState(this.getComponentState(this.props, nextProps));
   }
 
-  getComponentState(props, nextProps, applyBtn) {
+  getComponentState(props, nextProps) {
     const updatedState = {};
-    const { min, max, value, today } = nextProps;
+    const { min, max, value, today, calendarValue } = nextProps;
 
     if (props.value !== value) {
       updatedState.value = this.constructor.toDate(value);
+    }
+    if (props.calendarValue !== calendarValue) {
+      updatedState.calendarValue = this.constructor.toDate(calendarValue);
     }
     if (props.today !== today) {
       updatedState.today = this.constructor.toDate(today);
@@ -85,29 +88,27 @@ class PureDatepicker extends React.Component {
       updatedState.max = this.constructor.toDate(max);
     }
 
+    updatedState.calendarValue = nextProps.applyBtn
+      ? updatedState.calendarValue || updatedState.value // for init
+      : updatedState.value;
+
     if (Object.keys(updatedState).length > 0) {
       if (updatedState.min || updatedState.max) {
-        const currentDate = updatedState.value || props.value || updatedState.today || props.today;
+        const currentDate = updatedState.calendarValue || props.calendarValue || updatedState.today || props.today;
         if (!this.isInRange(currentDate, 'date', updatedState.min || false, updatedState.max || false)) {
           if (updatedState.min && !updatedState.max) {
-            updatedState.value = updatedState.min;
+            updatedState.calendarValue = updatedState.min;
           } else if (updatedState.max && !updatedState.min) {
-            updatedState.value = updatedState.max;
+            updatedState.calendarValue = updatedState.max;
           } else if (updatedState.min && updatedState.max) {
             if (instadate.isSameDay(updatedState.min, updatedState.max)) {
               console.warn('Incorrect min and max. There no dates to choose!');
             } else {
-              updatedState.value = updatedState.min;
+              updatedState.calendarValue = updatedState.min;
             }
           }
         }
       }
-    }
-
-    updatedState.currentValue = updatedState.value;
-
-    if (applyBtn && this.state) {
-      updatedState.value = this.state.value;
     }
 
     return updatedState;
@@ -185,9 +186,7 @@ class PureDatepicker extends React.Component {
     const { year, month, day, btnApply } = e.currentTarget.dataset;
     let accuracy;
 
-    let nextValue = this.props.applyBtn
-      ? new Date(this.state.currentValue || this.state.today)
-      : new Date(this.state.value || this.state.today);
+    let nextValue = new Date(this.state.calendarValue || this.state.today);
     nextValue = instadate.noon(instadate.resetTimezoneOffset(nextValue));
     if (year) {
       accuracy = 'year';
@@ -224,8 +223,7 @@ class PureDatepicker extends React.Component {
         this.setState(
           this.getComponentState(
             this.props,
-            { ...this.props, value: nextValue },
-            true,
+            { ...this.props, calendarValue: nextValue },
           ),
         );
 
@@ -288,9 +286,9 @@ class PureDatepicker extends React.Component {
       ...modalAttrs
     } = this.props;
 
-    const { value, today } = this.state;
+    const { value, calendarValue, today } = this.state;
 
-    const renderedDate = value || today;
+    const renderedDate = calendarValue || today;
 
     const weekDaysNames = this.getDaysNames();
     const weekendsRef = weekDaysNamesShort.reduce((acc, dayName, i) => {
@@ -355,7 +353,7 @@ class PureDatepicker extends React.Component {
                       key={`${month}-${date}`}
                       className={this.getDateClasses(
                         dateObject,
-                        applyBtn ? this.state.currentValue : this.state.value,
+                        this.state.calendarValue,
                         renderedDate,
                       )}
                       data-day-cell
@@ -387,7 +385,7 @@ class PureDatepicker extends React.Component {
                     data-btn-apply
                     className="btn btn-block btn-sm btn-default"
                     onClick={this.handleClick}
-                    disabled={!this.state.currentValue}
+                    disabled={!this.state.calendarValue}
                   >
                     Apply
                   </button>
@@ -415,7 +413,7 @@ class PureDatepicker extends React.Component {
                     onClick={this.handleClick}
                     className={this.getMonthClasses(
                       monthName,
-                      applyBtn ? this.state.currentValue : this.state.value,
+                      this.state.calendarValue,
                       renderedDate,
                     )}
                   >{monthName}</div>
@@ -429,7 +427,7 @@ class PureDatepicker extends React.Component {
                 onClick={this.handleClick}
                 className={this.getYearClasses(
                   yearsRange[0] + years[0],
-                  this.state.value,
+                  this.state.calendarValue,
                   renderedDate,
                 )}
               >↑</div>
@@ -441,7 +439,7 @@ class PureDatepicker extends React.Component {
                     onClick={this.handleClick}
                     className={this.getYearClasses(
                       year,
-                      applyBtn ? this.state.currentValue : this.state.value,
+                      this.state.calendarValue,
                       renderedDate,
                     )}
                   >{year}</div>
@@ -453,7 +451,7 @@ class PureDatepicker extends React.Component {
                 onClick={this.handleClick}
                 className={this.getYearClasses(
                   yearsRange[yearsRange.length - 1] + years[1],
-                  this.state.value,
+                  this.state.calendarValue,
                   renderedDate,
                 )}
               >↓</div>
