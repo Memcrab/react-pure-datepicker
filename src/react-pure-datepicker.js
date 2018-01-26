@@ -56,6 +56,7 @@ class PureDatepicker extends React.Component {
     this.getMonthClasses = this.getMonthClasses.bind(this);
     this.getYearClasses = this.getYearClasses.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.hanleApplyBtnClick = this.hanleApplyBtnClick.bind(this);
     this.openDatepickerModal = this.openDatepickerModal.bind(this);
     this.isInRange = this.isInRange.bind(this);
     this.clear = this.clear.bind(this);
@@ -182,8 +183,18 @@ class PureDatepicker extends React.Component {
     return minOk && maxOk;
   }
 
+  hanleApplyBtnClick() {
+    if (this.props.onChange) {
+      this.props.onChange(
+        pureDateFormat(this.state.calendarValue, this.props.returnFormat),
+        this.props.name,
+      );
+      return this.closeDatepickerModal();
+    }
+  }
+
   handleClick(e) {
-    const { year, month, day, btnApply } = e.currentTarget.dataset;
+    const { year, month, day } = e.currentTarget.dataset;
     let accuracy;
 
     let nextValue = new Date(this.state.calendarValue || this.state.today);
@@ -218,25 +229,13 @@ class PureDatepicker extends React.Component {
         }
       }
 
-      // ---------- onCHANGE WHEN applyBtn IS PRESSED ---------- //
-      if (this.props.applyBtn) {
-        this.setState(
-          this.getComponentState(
-            this.props,
-            { ...this.props, calendarValue: nextValue },
-          ),
-        );
+      this.setState(
+        this.getComponentState(
+          this.props,
+          { ...this.props, calendarValue: nextValue },
+        ),
+      );
 
-        if (this.props.onChange && btnApply) {
-          this.props.onChange(
-            pureDateFormat(nextValue, this.props.returnFormat),
-            this.props.name,
-          );
-          return this.closeDatepickerModal();
-        }
-      }
-
-      // ---------- onCHANGE EVERY TIME ---------- //
       if (this.props.onChange && !this.props.applyBtn) {
         this.props.onChange(
           pureDateFormat(nextValue, this.props.returnFormat),
@@ -384,7 +383,7 @@ class PureDatepicker extends React.Component {
                     type="button"
                     data-btn-apply
                     className="btn btn-block btn-sm btn-default"
-                    onClick={this.handleClick}
+                    onClick={this.hanleApplyBtnClick}
                     disabled={!this.state.calendarValue}
                   >
                     Apply
