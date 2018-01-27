@@ -1,4 +1,4 @@
-# react-pure-datepicker
+# react-pure-datepicker [![Build Status](https://travis-ci.org/memCrab/react-pure-datepicker.svg?branch=master)](https://travis-ci.org/memCrab/react-pure-datepicker)
 
 React datepicker with great UX
 
