@@ -206,6 +206,7 @@ class PureDatepicker extends Component<Props, State> {
     return minOk && maxOk;
   }
 
+  hanleApplyBtnClick: Function;
   hanleApplyBtnClick() {
     if (this.props.onChange) {
       this.props.onChange(
@@ -303,6 +304,7 @@ class PureDatepicker extends Component<Props, State> {
     this.refs.datepicker.close();
   }
 
+  handleCloseDatepickerModal: Function;
   handleCloseDatepickerModal() {
     this.setState({ calendarValue: this.state.value });
     return true;

@@ -22,6 +22,7 @@ export type WeekDaysNames = Array7;
 
 export type Props = {|
   value: Date | string,
+  calendarValue: Date | string,
   onChange: OnChange,
   onFocus?: OnFocus,
   today: Date,
@@ -32,6 +33,7 @@ export type Props = {|
   years: number[],
   className?: string,
   disabled?: boolean,
+  applyBtn?: boolean,
   required?: boolean,
   name?: Name,
   placeholder?: string,
