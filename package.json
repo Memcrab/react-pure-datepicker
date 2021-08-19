@@ -1,6 +1,6 @@
 {
   "name": "react-pure-datepicker",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "React datepicker",
   "main": "dist/react-pure-datepicker.min.js",
   "jnext:main": "dist/react-pure-datepicker.min.js",
